@@ -7,7 +7,7 @@ import secrets
 import io
 import csv
 
-app = Flask(__name__, template_folder='templates')
+app = Flask(__name__, template_folder='pages')
 # TODO: in production set secret from environment variable
 app.secret_key = 'geheimnis123'
 app.permanent_session_lifetime = timedelta(hours=1)
