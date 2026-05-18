@@ -1,0 +1,32 @@
+[
+  {
+    "kontonummer": "1000",
+    "name": "Alice Muster",
+    "pin": "pbkdf2:sha256:600000$nA9TxWoTvjQhobS3$35590d84ed83821d538ec681ea436b8a8a7b124758d371e7796a0838ef82a676",
+    "saldo": 1865.0,
+    "transaktionen": [
+      "[2026-05-18 13:19:14] Einzahlung: +100.00€",
+      "[2026-05-18 13:29:45] Auszahlung: -200.00€",
+      "[2026-05-18 13:29:52] Einzahlung: +5300.00€",
+      "[2026-05-18 13:35:56] Einzahlung: +1232143432.00€",
+      "[2026-05-18 13:36:04] Auszahlung: -1232143432.00€",
+      "[2026-05-18 13:38:19] Einzahlung: +1233.00€",
+      "[2026-05-18 13:38:23] Auszahlung: -1234.00€",
+      "[2026-05-18 13:38:30] Überweisung an Bob Müller: -34.00€",
+      "[2026-05-18 13:39:51] Überweisung an Bob Müller: -3400.00€",
+      "[2026-05-18 13:40:04] Einzahlung: +60000200000.00€",
+      "[2026-05-18 13:40:15] Überweisung an Bob Müller: -230000000.00€"
+    ]
+  },
+  {
+    "kontonummer": "1001",
+    "name": "Bob Müller",
+    "pin": "pbkdf2:sha256:600000$efF0CHJYr5o8gqVc$527191a519fe3b3b307e24f436afe604a171805c989d86ca60c918f95d1d9681",
+    "saldo": 3484.0,
+    "transaktionen": [
+      "[2026-05-18 13:38:30] Überweisung von Alice Muster: +34.00€",
+      "[2026-05-18 13:39:51] Überweisung von Alice Muster: +3400.00€",
+      "[2026-05-18 13:40:15] Überweisung von Alice Muster: +230000000.00€"
+    ]
+  }
+]

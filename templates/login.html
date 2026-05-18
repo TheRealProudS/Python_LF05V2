@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+
+{% block title %}Login - Bankautomat{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-7 col-lg-5">
+        <div class="auth-card shadow-sm">
+            <div class="card-body">
+                <h1>Modernes Banking starten</h1>
+                <p>Ein sicheres Login in Ihre Kontoverwaltung. Einfach anmelden und direkt zu den wichtigsten Funktionen springen.</p>
+
+                {% if error %}
+                    <div class="alert alert-danger">{{ error }}</div>
+                {% endif %}
+
+                <form method="POST">
+                    <div class="mb-3">
+                        <label for="kontonummer" class="form-label">Kontonummer</label>
+                        <input type="text" id="kontonummer" name="kontonummer" class="form-control" placeholder="z.B. 1000" required autofocus aria-label="Kontonummer">
+                    </div>
+                    <div class="mb-3">
+                        <label for="pin" class="form-label">PIN</label>
+                        <input type="password" id="pin" name="pin" class="form-control" placeholder="Geben Sie Ihre PIN ein" required aria-label="PIN">
+                    </div>
+
+                    <button type="submit" class="btn btn-primary w-100">Anmelden</button>
+                </form>
+
+                <div class="login-help">
+                    <strong>Demo-Konten:</strong><br>
+                    Kontonummer: 1000, PIN: 1234 · Kontonummer: 1001, PIN: 0000
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

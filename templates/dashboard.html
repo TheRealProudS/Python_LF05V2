@@ -1,0 +1,98 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard - Bankautomat{% endblock %}
+
+{% block content %}
+<div class="row g-4">
+    <div class="col-12">
+        <div class="page-header">
+            <div>
+                <h1>Willkommen zurück, {{ name }}.</h1>
+                <p>Ihr Banking-Dashboard zeigt die wichtigsten Kontoinformationen auf einen Blick. Alle Funktionen sind jetzt klar strukturiert und sofort zugänglich.</p>
+            </div>
+            <div class="dashboard-summary">
+                <div class="dashboard-card">
+                    <div class="label">Kontostand</div>
+                    <div class="value">{{ saldo }} €</div>
+                </div>
+                <div class="dashboard-card">
+                    <div class="label">Konto</div>
+                    <div class="value">{{ masked_kontonummer or kontonummer }}</div>
+                </div>
+                <div class="dashboard-card">
+                    <div class="label">Letzte Aktivität</div>
+                    <div class="value">{{ last_activity }}</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-12">
+        <h2 class="h6 mb-3">Operationen</h2>
+        <div class="row operations g-3">
+            <div class="col-sm-6 col-md-3">
+                <a href="{{ url_for('einzahlung') }}" class="btn btn-light w-100 shadow-sm text-start">
+                    <i class="bi bi-wallet2 fs-4 me-2"></i>
+                    Einzahlung
+                </a>
+            </div>
+            <div class="col-sm-6 col-md-3">
+                <a href="{{ url_for('auszahlung') }}" class="btn btn-light w-100 shadow-sm text-start">
+                    <i class="bi bi-cash-coin fs-4 me-2"></i>
+                    Auszahlung
+                </a>
+            </div>
+            <div class="col-sm-6 col-md-3">
+                <a href="{{ url_for('ueberweisung') }}" class="btn btn-light w-100 shadow-sm text-start">
+                    <i class="bi bi-arrow-right-square fs-4 me-2"></i>
+                    Überweisung
+                </a>
+            </div>
+            <div class="col-sm-6 col-md-3">
+                <a href="{{ url_for('transaktionen') }}" class="btn btn-light w-100 shadow-sm text-start">
+                    <i class="bi bi-clock-history fs-4 me-2"></i>
+                    Transaktionen
+                </a>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-12">
+        <div class="card shadow-sm p-3">
+            <div class="d-flex justify-content-between align-items-center mb-2">
+                <div class="h6 mb-0">Kontobewegungen (letzte 10)</div>
+                <div class="d-flex gap-2 align-items-center">
+                    <div class="muted small">Beträge in €</div>
+                    <a href="{{ url_for('export_csv') }}" class="btn btn-sm btn-outline-primary">Export (CSV)</a>
+                </div>
+            </div>
+            <canvas id="miniChart" height="80"></canvas>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    (function(){
+        const labels = {{ chart_labels|safe }} || [];
+        const data = {{ chart_amounts|safe }} || [];
+        const balances = {{ chart_balances|safe }} || [];
+        const useBalances = balances && balances.length > 0;
+        const ctx = document.getElementById('miniChart').getContext('2d');
+        new Chart(ctx, {
+            type: useBalances ? 'line' : 'bar',
+            data: {
+                labels: labels.map(l => l.split(' ')[0]),
+                datasets: [{
+                    label: useBalances ? 'Kontostand' : 'Betrag',
+                    data: useBalances ? balances : data,
+                    backgroundColor: (useBalances ? 'rgba(124,58,237,0.12)' : data.map(v => v >= 0 ? 'rgba(34,197,94,0.8)' : 'rgba(239,68,68,0.8)')),
+                    borderColor: useBalances ? '#7c3aed' : undefined,
+                    fill: useBalances
+                }]
+            },
+            options: { plugins: { legend: { display: false } }, scales: { x: { display: false } } }
+        });
+    })();
+</script>
+{% endblock %}

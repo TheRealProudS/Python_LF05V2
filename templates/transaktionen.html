@@ -1,0 +1,93 @@
+{% extends "base.html" %}
+
+{% block title %}Transaktionshistorie - Bankautomat{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-lg-8">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <div>
+                <div class="muted">Name</div>
+                <div class="h6 mb-0">{{ name }}</div>
+            </div>
+            <div class="text-end">
+                <div class="muted">Aktueller Saldo</div>
+                <div class="h6 mb-0">{{ saldo }} €</div>
+            </div>
+        </div>
+
+        {% if transaktionen and transaktionen|length > 0 %}
+            <div class="card shadow-sm mb-3">
+                <div class="card-body p-0">
+                    <table class="table mb-0 align-middle">
+                        <thead>
+                            <tr>
+                                <th>Datum & Zeit</th>
+                                <th>Beschreibung</th>
+                                <th class="text-end">Betrag</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for t in transaktionen %}
+                                <tr>
+                                    <td class="small muted">{{ t.datetime }}</td>
+                                    <td>{{ t.desc }}</td>
+                                    <td class="text-end">
+                                        {% if t.amount >= 0 %}
+                                            <span class="text-success">+{{ '%.2f'|format(t.amount) }} €</span>
+                                        {% else %}
+                                            <span class="text-danger">{{ '%.2f'|format(t.amount) }} €</span>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        {% else %}
+            <div class="card shadow-sm">
+                <div class="card-body tx-empty">Keine Transaktionen vorhanden.</div>
+            </div>
+        {% endif %}
+
+        <div class="d-flex gap-2 mt-3">
+            <a href="{{ url_for('dashboard') }}" class="btn btn-outline-secondary">← Zurück zum Dashboard</a>
+            <a href="{{ url_for('export_csv') }}" class="btn btn-primary">Exportieren (CSV)</a>
+        </div>
+    </div>
+
+    <div class="col-lg-4">
+        <div class="card shadow-sm p-3 mb-3">
+            <div class="h6 mb-3">Transaktionsübersicht</div>
+            <canvas id="txChart" height="180"></canvas>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    (function(){
+        const labels = {{ chart_labels|safe }} || [];
+        const amounts = {{ chart_amounts|safe }} || [];
+        const balances = {{ chart_balances|safe }} || [];
+        const ctx = document.getElementById('txChart').getContext('2d');
+        const useBalances = balances && balances.length > 0;
+        new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: labels.map(l=>l.split(' ')[0]),
+                datasets: [{
+                    label: useBalances ? 'Kontostand' : 'Betrag',
+                    data: useBalances ? balances : amounts,
+                    borderColor: '#7c3aed',
+                    backgroundColor: 'rgba(124,58,237,0.12)',
+                    tension: 0.25,
+                    fill: true,
+                }]
+            },
+            options: { plugins: { legend: { display: false } }, scales: { x: { display: true } } }
+        });
+    })();
+</script>
+{% endblock %}

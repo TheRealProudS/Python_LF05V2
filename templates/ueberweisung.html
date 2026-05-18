@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+
+{% block title %}Überweisung - Bankautomat{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8 col-lg-6">
+        <div class="card shadow-sm">
+            <div class="card-body">
+                <h3 class="h5 mb-3">Überweisung</h3>
+
+                <div class="mb-3 text-muted">Aktueller Saldo: <strong>{{ saldo }} €</strong></div>
+
+                {% if error %}
+                    <div class="alert alert-danger">{{ error }}</div>
+                {% endif %}
+                {% if success %}
+                    <div class="alert alert-success">{{ success }}</div>
+                {% endif %}
+
+                <form method="POST" onsubmit="return confirmTransfer(this)">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+                    <div class="mb-3">
+                        <label for="ziel_kontonummer" class="form-label">Zielkontonummer</label>
+                        <input type="text" id="ziel_kontonummer" name="ziel_kontonummer" class="form-control" placeholder="z.B. 1001" required aria-label="Zielkontonummer">
+                    </div>
+                    <div class="mb-3">
+                        <label for="betrag" class="form-label">Betrag (€)</label>
+                        <input type="number" id="betrag" name="betrag" class="form-control" placeholder="z.B. 50.00" step="0.01" min="0.01" required aria-label="Betrag">
+                    </div>
+                    <button class="btn brand-btn text-white">Überweisung durchführen</button>
+                    <a href="{{ url_for('dashboard') }}" class="btn btn-outline-secondary ms-2">Zurück</a>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
