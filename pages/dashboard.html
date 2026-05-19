@@ -66,31 +66,70 @@
     </div>
 </div>
 
+<script type="application/json" id="chart-data">
+{
+    "labels": {{ chart_labels|default([])|tojson|safe }},
+    "balances": {{ chart_balances|default([])|tojson|safe }}
+}
+</script>
+
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
 <script>
-(function(){
-    const labels = {{ chart_labels|safe }} || [];
-    const balances = {{ chart_balances|safe }} || [];
-    const ctx = document.getElementById('miniChart').getContext('2d');
-    new Chart(ctx, {
-        type: 'line',
-        data: {
-            labels: labels.map(l => l.split(' ')[0]),
-            datasets: [{
-                label: 'Kontostand',
-                data: balances,
-                borderColor: '#8b5cf6',
-                backgroundColor: 'rgba(139,92,246,0.16)',
-                fill: true,
-                tension: 0.3,
-                pointRadius: 0,
-            }]
-        },
-        options: {
-            plugins: { legend: { display: false } },
-            scales: { x: { display: true }, y: { display: true } }
+document.addEventListener('DOMContentLoaded', function() {
+    try {
+        const chartData = JSON.parse(document.getElementById('chart-data').textContent);
+        const labels = chartData.labels;
+        const balances = chartData.balances;
+        
+        console.log('Labels:', labels);
+        console.log('Balances:', balances);
+        
+        const miniChartElement = document.getElementById('miniChart');
+        if (!miniChartElement) {
+            console.error('Canvas element miniChart not found');
+            return;
         }
-    });
-})();
+        
+        const ctx = miniChartElement.getContext('2d');
+        new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: labels || [],
+                datasets: [{
+                    label: 'Kontostand',
+                    data: balances || [],
+                    borderColor: 'rgb(79, 70, 229)',
+                    backgroundColor: 'rgba(79, 70, 229, 0.1)',
+                    borderWidth: 2,
+                    tension: 0.4,
+                    fill: true
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: true,
+                plugins: {
+                    legend: {
+                        display: true,
+                        position: 'top'
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: false,
+                        ticks: {
+                            callback: function(value) {
+                                return value.toLocaleString('de-DE') + ' €';
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    } catch (error) {
+        console.error('Chart initialization error:', error);
+    }
+});
 </script>
 {% endblock %}
