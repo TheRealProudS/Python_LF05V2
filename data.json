@@ -16,6 +16,35 @@
       "[2026-05-18 13:39:51] Überweisung an Bob Müller: -3400.00€",
       "[2026-05-18 13:40:04] Einzahlung: +60000200000.00€",
       "[2026-05-18 13:40:15] Überweisung an Bob Müller: -230000000.00€"
+    ],
+    "kredite": [
+      {
+        "id": "69911742bc9631bd",
+        "amount": 5000.0,
+        "months": 12,
+        "rate": 5.0,
+        "monthly": 428.04,
+        "status": "offen",
+        "applied_at": "2026-05-19T11:35:20.115910"
+      },
+      {
+        "id": "9fd08e4335c59330",
+        "amount": 5000.0,
+        "months": 12,
+        "rate": 5.0,
+        "monthly": 428.04,
+        "status": "offen",
+        "applied_at": "2026-05-19T11:45:39.792573"
+      },
+      {
+        "id": "d93f2c416b7c8cc0",
+        "amount": 5000.0,
+        "months": 12,
+        "rate": 5.0,
+        "monthly": 428.04,
+        "status": "offen",
+        "applied_at": "2026-05-19T11:45:42.280519"
+      }
     ]
   },
   {
@@ -27,6 +56,7 @@
       "[2026-05-18 13:38:30] Überweisung von Alice Muster: +34.00€",
       "[2026-05-18 13:39:51] Überweisung von Alice Muster: +3400.00€",
       "[2026-05-18 13:40:15] Überweisung von Alice Muster: +230000000.00€"
-    ]
+    ],
+    "kredite": []
   }
 ]

@@ -1,98 +1,96 @@
-{% extends "base.html" %}
+﻿{% extends "base.html" %}
 
 {% block title %}Dashboard - Bankautomat{% endblock %}
 
 {% block content %}
-<div class="row g-4">
-    <div class="col-12">
-        <div class="page-header">
-            <div>
-                <h1>Willkommen zurück, {{ name }}.</h1>
-                <p>Ihr Banking-Dashboard zeigt die wichtigsten Kontoinformationen auf einen Blick. Alle Funktionen sind jetzt klar strukturiert und sofort zugänglich.</p>
-            </div>
+<div class="page-grid">
+    <div class="card-soft">
+        <div class="section-title">
+            <h2>Ihr Konto-Cockpit</h2>
+            <p>Alles Wichtige im Blick: Kontostand, letzte Aktivität und schnelle Aktionen.</p>
+        </div>
+
+        <div class="grid gap-5">
             <div class="dashboard-summary">
-                <div class="dashboard-card">
-                    <div class="label">Kontostand</div>
-                    <div class="value">{{ saldo }} €</div>
+                <div class="card-soft">
+                    <p class="text-slate-500">Kontostand</p>
+                    <p class="mt-2 text-lg font-semibold text-slate-900">{{ saldo }} €</p>
                 </div>
-                <div class="dashboard-card">
-                    <div class="label">Konto</div>
-                    <div class="value">{{ masked_kontonummer or kontonummer }}</div>
+                <div class="card-soft">
+                    <p class="text-slate-500">Letzte Aktivität</p>
+                    <p class="mt-2 text-sm font-semibold text-slate-900">{{ last_activity }}</p>
                 </div>
-                <div class="dashboard-card">
-                    <div class="label">Letzte Aktivität</div>
-                    <div class="value">{{ last_activity }}</div>
+                <div class="card-soft">
+                    <p class="text-slate-500">Konto</p>
+                    <p class="mt-2 text-sm font-semibold text-slate-900">{{ masked_kontonummer or kontonummer }}</p>
+                </div>
+                <div class="card-soft">
+                    <p class="text-slate-500">Depot</p>
+                    <p class="mt-2 text-sm font-semibold text-slate-900">{{ savings }} €</p>
+                </div>
+                <div class="card-soft">
+                    <p class="text-slate-500">Kreditstatus</p>
+                    <p class="mt-2 text-sm font-semibold text-violet-600">Jetzt prüfen</p>
                 </div>
             </div>
         </div>
     </div>
 
-    <div class="col-12">
-        <h2 class="h6 mb-3">Operationen</h2>
-        <div class="row operations g-3">
-            <div class="col-sm-6 col-md-3">
-                <a href="{{ url_for('einzahlung') }}" class="btn btn-light w-100 shadow-sm text-start">
-                    <i class="bi bi-wallet2 fs-4 me-2"></i>
-                    Einzahlung
-                </a>
+    <div class="grid gap-6">
+        <div class="card-soft">
+            <div class="section-title">
+                <h2>Kontobewegungen</h2>
+                <p>Letzte 5 Transaktionen und Kontoverlauf.</p>
             </div>
-            <div class="col-sm-6 col-md-3">
-                <a href="{{ url_for('auszahlung') }}" class="btn btn-light w-100 shadow-sm text-start">
-                    <i class="bi bi-cash-coin fs-4 me-2"></i>
-                    Auszahlung
-                </a>
-            </div>
-            <div class="col-sm-6 col-md-3">
-                <a href="{{ url_for('ueberweisung') }}" class="btn btn-light w-100 shadow-sm text-start">
-                    <i class="bi bi-arrow-right-square fs-4 me-2"></i>
-                    Überweisung
-                </a>
-            </div>
-            <div class="col-sm-6 col-md-3">
-                <a href="{{ url_for('transaktionen') }}" class="btn btn-light w-100 shadow-sm text-start">
-                    <i class="bi bi-clock-history fs-4 me-2"></i>
-                    Transaktionen
-                </a>
-            </div>
-        </div>
-    </div>
-    
-    <div class="col-12">
-        <div class="card shadow-sm p-3">
-            <div class="d-flex justify-content-between align-items-center mb-2">
-                <div class="h6 mb-0">Kontobewegungen (letzte 10)</div>
-                <div class="d-flex gap-2 align-items-center">
-                    <div class="muted small">Beträge in €</div>
-                    <a href="{{ url_for('export_csv') }}" class="btn btn-sm btn-outline-primary">Export (CSV)</a>
+
+            {% if last_transaktionen and last_transaktionen|length > 0 %}
+            <div class="mt-6 txn-list">
+                {% for t in last_transaktionen %}
+                <div class="txn-item">
+                    <div class="txn-left">
+                        <div class="txn-date">{{ t.datetime }}</div>
+                        <div class="txn-desc">{{ t.desc }}</div>
+                    </div>
+                    <div class="txn-amt"><span class="{{ 'amt-positive' if t.amount >= 0 else 'amt-negative' }}">{{ '+' if t.amount >= 0 else '' }}{{ '%.2f'|format(t.amount) }}</span> €</div>
                 </div>
+                {% endfor %}
             </div>
-            <canvas id="miniChart" height="80"></canvas>
+            {% else %}
+            <div class="mt-6 text-slate-500">Keine aktuellen Transaktionen.</div>
+            {% endif %}
+
+            <div class="mt-4">
+                <canvas id="miniChart" height="220"></canvas>
+            </div>
         </div>
     </div>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
-    (function(){
-        const labels = {{ chart_labels|safe }} || [];
-        const data = {{ chart_amounts|safe }} || [];
-        const balances = {{ chart_balances|safe }} || [];
-        const useBalances = balances && balances.length > 0;
-        const ctx = document.getElementById('miniChart').getContext('2d');
-        new Chart(ctx, {
-            type: useBalances ? 'line' : 'bar',
-            data: {
-                labels: labels.map(l => l.split(' ')[0]),
-                datasets: [{
-                    label: useBalances ? 'Kontostand' : 'Betrag',
-                    data: useBalances ? balances : data,
-                    backgroundColor: (useBalances ? 'rgba(124,58,237,0.12)' : data.map(v => v >= 0 ? 'rgba(34,197,94,0.8)' : 'rgba(239,68,68,0.8)')),
-                    borderColor: useBalances ? '#7c3aed' : undefined,
-                    fill: useBalances
-                }]
-            },
-            options: { plugins: { legend: { display: false } }, scales: { x: { display: false } } }
-        });
-    })();
+(function(){
+    const labels = {{ chart_labels|safe }} || [];
+    const balances = {{ chart_balances|safe }} || [];
+    const ctx = document.getElementById('miniChart').getContext('2d');
+    new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: labels.map(l => l.split(' ')[0]),
+            datasets: [{
+                label: 'Kontostand',
+                data: balances,
+                borderColor: '#8b5cf6',
+                backgroundColor: 'rgba(139,92,246,0.16)',
+                fill: true,
+                tension: 0.3,
+                pointRadius: 0,
+            }]
+        },
+        options: {
+            plugins: { legend: { display: false } },
+            scales: { x: { display: true }, y: { display: true } }
+        }
+    });
+})();
 </script>
 {% endblock %}

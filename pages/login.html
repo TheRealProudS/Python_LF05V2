@@ -1,30 +1,36 @@
-{% extends "base.html" %}
+﻿{% extends "base.html" %}
 
 {% block title %}Login - Bankautomat{% endblock %}
 
 {% block content %}
-<div class="row justify-content-center">
-    <div class="col-md-7 col-lg-5">
-        <div class="auth-card shadow-sm">
+<div class="min-h-screen flex items-center justify-center py-16">
+    <div class="w-full max-w-md">
+        <div class="auth-card">
             <div class="card-body">
-                <h1>Modernes Banking starten</h1>
-                <p>Ein sicheres Login in Ihre Kontoverwaltung. Einfach anmelden und direkt zu den wichtigsten Funktionen springen.</p>
+                <h1>Willkommen bei BankPro</h1>
+                <p>Bitte melden Sie sich an, um Ihr Konto zu verwalten.</p>
 
                 {% if error %}
                     <div class="alert alert-danger">{{ error }}</div>
                 {% endif %}
 
-                <form method="POST">
-                    <div class="mb-3">
-                        <label for="kontonummer" class="form-label">Kontonummer</label>
-                        <input type="text" id="kontonummer" name="kontonummer" class="form-control" placeholder="z.B. 1000" required autofocus aria-label="Kontonummer">
+                <form method="POST" class="space-y-5">
+                    {{ form.hidden_tag() }}
+                    <div class="input-group">
+                        <label for="kontonummer">Kontonummer</label>
+                        {{ form.kontonummer(class_='form-control', id='kontonummer', placeholder='z.B. 1000') }}
+                        {% if form.kontonummer.errors %}
+                            <p class="field-error">{{ form.kontonummer.errors[0] }}</p>
+                        {% endif %}
                     </div>
-                    <div class="mb-3">
-                        <label for="pin" class="form-label">PIN</label>
-                        <input type="password" id="pin" name="pin" class="form-control" placeholder="Geben Sie Ihre PIN ein" required aria-label="PIN">
+                    <div class="input-group">
+                        <label for="pin">PIN</label>
+                        {{ form.pin(class_='form-control', id='pin', placeholder='••••') }}
+                        {% if form.pin.errors %}
+                            <p class="field-error">{{ form.pin.errors[0] }}</p>
+                        {% endif %}
                     </div>
-
-                    <button type="submit" class="btn btn-primary w-100">Anmelden</button>
+                    <button type="submit" class="btn btn-primary w-full">Anmelden</button>
                 </form>
 
                 <div class="login-help">

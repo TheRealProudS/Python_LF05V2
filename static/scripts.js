@@ -26,3 +26,50 @@
         }
     }
 })();
+
+// Sidebar toggle (persist state in localStorage)
+(function(){
+    document.addEventListener('DOMContentLoaded', function(){
+        const shell = document.querySelector('.app-shell');
+        const btn = document.getElementById('sidebarToggle');
+        const storageKey = 'sidebarCollapsed';
+        const setCollapsed = function(collapsed){
+            if(!shell) return;
+            if(collapsed) shell.classList.add('collapsed'); else shell.classList.remove('collapsed');
+            if(btn){
+                const icon = btn.querySelector('i');
+                if(icon) icon.className = collapsed ? 'bi bi-chevron-right' : 'bi bi-chevron-left';
+                btn.setAttribute('aria-expanded', String(!collapsed));
+            }
+            try{ localStorage.setItem(storageKey, collapsed ? '1' : '0'); }catch(e){}
+        };
+
+        if(btn && shell){
+            btn.addEventListener('click', function(e){
+                const to = !shell.classList.contains('collapsed');
+                setCollapsed(to);
+            });
+            const stored = (localStorage.getItem(storageKey) === '1');
+            setCollapsed(stored);
+        }
+
+        // Filter panel toggle
+        const filterBtn = document.getElementById('filterToggle');
+        const filterPanel = document.getElementById('filterPanel');
+        if(filterBtn && filterPanel){
+            const updateLabel = () => {
+                const isCollapsed = filterPanel.classList.contains('collapsed');
+                filterBtn.setAttribute('aria-expanded', String(!isCollapsed));
+                filterBtn.textContent = isCollapsed ? 'Filter anzeigen' : 'Filter verbergen';
+            };
+            filterBtn.addEventListener('click', function(e){
+                e.preventDefault();
+                filterPanel.classList.toggle('collapsed');
+                filterPanel.classList.toggle('expanded');
+                updateLabel();
+            });
+            // initialize label based on current panel state
+            updateLabel();
+        }
+    });
+})();

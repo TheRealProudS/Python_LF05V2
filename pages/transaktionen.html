@@ -1,93 +1,106 @@
-{% extends "base.html" %}
+﻿{% extends "base.html" %}
 
 {% block title %}Transaktionshistorie - Bankautomat{% endblock %}
 
 {% block content %}
-<div class="row">
-    <div class="col-lg-8">
-        <div class="d-flex justify-content-between align-items-center mb-3">
-            <div>
-                <div class="muted">Name</div>
-                <div class="h6 mb-0">{{ name }}</div>
-            </div>
-            <div class="text-end">
-                <div class="muted">Aktueller Saldo</div>
-                <div class="h6 mb-0">{{ saldo }} €</div>
-            </div>
+<div class="page-grid">
+    <div class="card-soft">
+        <div class="section-title">
+            <h2>Transaktionen</h2>
+            <p>Filtere dein Konto nach Datum, Betrag oder Beschreibung.</p>
         </div>
 
-        {% if transaktionen and transaktionen|length > 0 %}
-            <div class="card shadow-sm mb-3">
-                <div class="card-body p-0">
-                    <table class="table mb-0 align-middle">
-                        <thead>
-                            <tr>
-                                <th>Datum & Zeit</th>
-                                <th>Beschreibung</th>
-                                <th class="text-end">Betrag</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for t in transaktionen %}
-                                <tr>
-                                    <td class="small muted">{{ t.datetime }}</td>
-                                    <td>{{ t.desc }}</td>
-                                    <td class="text-end">
-                                        {% if t.amount >= 0 %}
-                                            <span class="text-success">+{{ '%.2f'|format(t.amount) }} €</span>
-                                        {% else %}
-                                            <span class="text-danger">{{ '%.2f'|format(t.amount) }} €</span>
-                                        {% endif %}
-                                    </td>
-                                </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        {% else %}
-            <div class="card shadow-sm">
-                <div class="card-body tx-empty">Keine Transaktionen vorhanden.</div>
-            </div>
-        {% endif %}
+        <div class="filter-bar">
+            <button id="filterToggle" class="btn btn-outline-secondary" aria-expanded="false">Filter anzeigen</button>
+        </div>
 
-        <div class="d-flex gap-2 mt-3">
-            <a href="{{ url_for('dashboard') }}" class="btn btn-outline-secondary">← Zurück zum Dashboard</a>
-            <a href="{{ url_for('export_csv') }}" class="btn btn-primary">Exportieren (CSV)</a>
+        <div id="filterPanel" class="filter-panel {% if filter_open %}expanded{% else %}collapsed{% endif %}">
+            <form method="get" class="grid gap-4 md:grid-cols-2 xl:grid-cols-5">
+                <div class="input-group">
+                    <label>Von</label>
+                    <input type="date" name="date_from" value="{{ date_from }}">
+                </div>
+                <div class="input-group">
+                    <label>Bis</label>
+                    <input type="date" name="date_to" value="{{ date_to }}">
+                </div>
+                <div class="input-group">
+                    <label>Min. Betrag</label>
+                    <input type="number" step="0.01" name="betrag_min" value="{{ betrag_min }}">
+                </div>
+                <div class="input-group">
+                    <label>Max. Betrag</label>
+                    <input type="number" step="0.01" name="betrag_max" value="{{ betrag_max }}">
+                </div>
+                <div class="input-group">
+                    <label>Suche</label>
+                    <input type="search" name="search" placeholder="Beschreibung, Betrag..." value="{{ search }}">
+                </div>
+                <div class="md:col-span-2 xl:col-span-5 flex flex-wrap gap-3 items-center justify-end">
+                    <button type="submit" class="btn btn-primary">Filtern</button>
+                    <a href="{{ url_for('transaktionen') }}" class="btn btn-outline-secondary">Zurücksetzen</a>
+                </div>
+            </form>
         </div>
     </div>
 
-    <div class="col-lg-4">
-        <div class="card shadow-sm p-3 mb-3">
-            <div class="h6 mb-3">Transaktionsübersicht</div>
-            <canvas id="txChart" height="180"></canvas>
+    <div class="grid gap-6 lg:grid-cols-[2fr_1fr]">
+        <div class="card-soft">
+            <div class="section-title">
+                <h2>Verlauf</h2>
+                <p>Alle gefilterten Buchungen auf einen Blick.</p>
+            </div>
+
+            {% if transaktionen and transaktionen|length > 0 %}
+            <div class="overflow-x-auto">
+                <table class="table-alt">
+                    <thead>
+                        <tr>
+                            <th>Datum & Zeit</th>
+                            <th>Beschreibung</th>
+                            <th class="text-end">Betrag</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for t in transaktionen %}
+                        <tr>
+                            <td>{{ t.datetime }}</td>
+                            <td>{{ t.desc }}</td>
+                            <td class="text-end"><span class="{{ 'amt-positive' if t.amount >= 0 else 'amt-negative' }}">{{ '+' if t.amount >= 0 else '' }}{{ '%.2f'|format(t.amount) }}</span> €</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <div class="rounded-3xl bg-slate-50 p-8 text-center text-slate-500">
+                Keine Transaktionen gefunden.
+            </div>
+            {% endif %}
+
+            <div class="mt-6 flex flex-wrap gap-3">
+                <a href="{{ url_for('dashboard') }}" class="btn btn-outline-secondary">← Dashboard</a>
+                <a href="{{ url_for('export_csv') }}" class="btn btn-primary">Exportieren (CSV)</a>
+            </div>
+        </div>
+
+        <div class="card-soft">
+            <div class="section-title">
+                <h2>Übersicht</h2>
+                <p>Direkte Einblicke in deine Transaktionsdaten.</p>
+            </div>
+            <div class="mt-6 space-y-4">
+                <div class="rounded-3xl bg-slate-50 p-4">
+                    <p class="text-slate-500">Aktuelle Filter</p>
+                    <p class="mt-2 text-slate-700">Von: {{ date_from or 'Beliebig' }}, Bis: {{ date_to or 'Beliebig' }}</p>
+                    <p class="text-slate-700">Betrag: {{ betrag_min or 'keiner' }} - {{ betrag_max or 'keiner' }}</p>
+                </div>
+                <div class="rounded-3xl bg-slate-50 p-4">
+                    <p class="text-slate-500">Tipp</p>
+                    <p class="mt-2 text-slate-700">Verwende die Suche, um schnelle Antworten zu deinen Buchungen zu finden.</p>
+                </div>
+            </div>
         </div>
     </div>
 </div>
-
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<script>
-    (function(){
-        const labels = {{ chart_labels|safe }} || [];
-        const amounts = {{ chart_amounts|safe }} || [];
-        const balances = {{ chart_balances|safe }} || [];
-        const ctx = document.getElementById('txChart').getContext('2d');
-        const useBalances = balances && balances.length > 0;
-        new Chart(ctx, {
-            type: 'line',
-            data: {
-                labels: labels.map(l=>l.split(' ')[0]),
-                datasets: [{
-                    label: useBalances ? 'Kontostand' : 'Betrag',
-                    data: useBalances ? balances : amounts,
-                    borderColor: '#7c3aed',
-                    backgroundColor: 'rgba(124,58,237,0.12)',
-                    tension: 0.25,
-                    fill: true,
-                }]
-            },
-            options: { plugins: { legend: { display: false } }, scales: { x: { display: true } } }
-        });
-    })();
-</script>
 {% endblock %}

@@ -2,6 +2,9 @@ import json
 import os
 from konto import Konto
 from werkzeug.security import generate_password_hash, check_password_hash
+from datetime import datetime, timedelta
+import calendar
+import secrets
 
 class Bank:
     def __init__(self, data_file='data.json'):
@@ -90,6 +93,112 @@ class Bank:
     def kontostand(self, kontonummer):
         konto = self.finde_konto(kontonummer)
         return konto.saldo if konto else None
+
+    def add_sparplan(self, kontonummer, amount, frequency, target=None, start_next_run=None, name=None):
+        konto = self.finde_konto(kontonummer)
+        if not konto:
+            return None
+        plan = {
+            'id': secrets.token_hex(8),
+            'name': name or 'Sparplan',
+            'amount': float(amount),
+            'frequency': frequency,  # 'daily','weekly','biweekly','monthly'
+            'target': float(target) if target is not None and target != '' else None,
+            'active': True,
+            'next_run': (start_next_run.isoformat() if start_next_run else datetime.now().isoformat())
+        }
+        if not hasattr(konto, 'sparplaene'):
+            konto.sparplaene = []
+        konto.sparplaene.append(plan)
+        self.save_data()
+        return plan
+
+    def remove_sparplan(self, kontonummer, plan_id):
+        konto = self.finde_konto(kontonummer)
+        if not konto or not hasattr(konto, 'sparplaene'):
+            return False
+        for p in konto.sparplaene:
+            if p.get('id') == plan_id:
+                p['active'] = False
+                self.save_data()
+                return True
+        return False
+
+    def _add_months(self, dt, months):
+        # add months to datetime safely
+        year = dt.year + (dt.month - 1 + months) // 12
+        month = (dt.month - 1 + months) % 12 + 1
+        day = min(dt.day, calendar.monthrange(year, month)[1])
+        return dt.replace(year=year, month=month, day=day)
+
+    def process_sparplaene(self, now=None):
+        now = now or datetime.now()
+        changed = False
+        for konto in self.konten.values():
+            if not hasattr(konto, 'sparplaene'):
+                continue
+            for plan in konto.sparplaene:
+                if not plan.get('active'):
+                    continue
+                try:
+                    next_run = datetime.fromisoformat(plan.get('next_run'))
+                except Exception:
+                    next_run = now
+                # process occurrences up to now
+                ran = False
+                while next_run <= now and plan.get('active'):
+                    amount = float(plan.get('amount', 0))
+                    target = plan.get('target')
+                    # if target reached, deactivate plan
+                    if target is not None:
+                        try:
+                            if konto.savings >= float(target):
+                                plan['active'] = False
+                                changed = True
+                                break
+                        except Exception:
+                            pass
+
+                    # attempt transfer if funds available
+                    if konto.saldo >= amount and amount > 0:
+                        # perform transfer
+                        try:
+                            konto.transfer_to_savings(amount, plan.get('name'))
+                            changed = True
+                            ran = True
+                        except Exception:
+                            pass
+
+                    # advance next_run based on frequency
+                    freq = plan.get('frequency')
+                    if freq == 'daily':
+                        next_run = next_run + timedelta(days=1)
+                    elif freq == 'weekly':
+                        next_run = next_run + timedelta(weeks=1)
+                    elif freq == 'biweekly':
+                        next_run = next_run + timedelta(weeks=2)
+                    elif freq == 'monthly':
+                        next_run = self._add_months(next_run, 1)
+                    else:
+                        # default to monthly
+                        next_run = self._add_months(next_run, 1)
+
+                    plan['next_run'] = next_run.isoformat()
+
+                    # if target is set and reached after transfer, deactivate
+                    if plan.get('target') is not None:
+                        try:
+                            if konto.savings >= float(plan.get('target')):
+                                plan['active'] = False
+                                changed = True
+                                break
+                        except Exception:
+                            pass
+
+                # end while
+        if changed:
+            self.save_data()
+        return changed
 
     def alle_konten(self):
         return list(self.konten.values())
