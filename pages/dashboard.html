@@ -1,67 +1,129 @@
 ﻿{% extends "base.html" %}
 
-{% block title %}Dashboard - Bankautomat{% endblock %}
+{% block title %}Dashboard - BankPro{% endblock %}
 
 {% block content %}
 <div class="page-grid">
-    <div class="card-soft">
-        <div class="section-title">
-            <h2>Ihr Konto-Cockpit</h2>
-            <p>Alles Wichtige im Blick: Kontostand, letzte Aktivität und schnelle Aktionen.</p>
+    <!-- Premium Account Card -->
+    <div class="card-premium">
+        <div class="card-premium-top">
+            <div class="card-premium-header">
+                <div>
+                    <p class="card-label">Ihr Hauptkonto</p>
+                    <p class="card-number">{{ masked_kontonummer or kontonummer }}</p>
+                </div>
+                <i class="bi bi-credit-card-2-back card-icon"></i>
+            </div>
         </div>
-
-        <div class="grid gap-5">
-            <div class="dashboard-summary">
-                <div class="card-soft">
-                    <p class="text-slate-500">Kontostand</p>
-                    <p class="mt-2 text-lg font-semibold text-slate-900">{{ saldo }} €</p>
+        <div class="card-premium-bottom">
+            <div class="card-amount">
+                <p class="card-label-small">Kontostand</p>
+                <p class="card-balance">{{ saldo }} €</p>
+            </div>
+            <div class="card-meta">
+                <div class="card-meta-item">
+                    <p class="card-label-small">Depot</p>
+                    <p class="card-meta-value">{{ savings }} €</p>
                 </div>
-                <div class="card-soft">
-                    <p class="text-slate-500">Letzte Aktivität</p>
-                    <p class="mt-2 text-sm font-semibold text-slate-900">{{ last_activity }}</p>
-                </div>
-                <div class="card-soft">
-                    <p class="text-slate-500">Konto</p>
-                    <p class="mt-2 text-sm font-semibold text-slate-900">{{ masked_kontonummer or kontonummer }}</p>
-                </div>
-                <div class="card-soft">
-                    <p class="text-slate-500">Depot</p>
-                    <p class="mt-2 text-sm font-semibold text-slate-900">{{ savings }} €</p>
-                </div>
-                <div class="card-soft">
-                    <p class="text-slate-500">Kreditstatus</p>
-                    <p class="mt-2 text-sm font-semibold text-violet-600">Jetzt prüfen</p>
+                <div class="card-meta-item">
+                    <p class="card-label-small">Status</p>
+                    <p class="card-meta-value status-active">✓ Aktiv</p>
                 </div>
             </div>
         </div>
     </div>
 
-    <div class="grid gap-6">
-        <div class="card-soft">
-            <div class="section-title">
-                <h2>Kontobewegungen</h2>
-                <p>Letzte 5 Transaktionen und Kontoverlauf.</p>
+    <!-- Stats Grid -->
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div class="stat-icon stat-icon-income">
+                <i class="bi bi-arrow-down-circle"></i>
             </div>
+            <div>
+                <p class="stat-label">Einnahmen</p>
+                <p class="stat-value text-success">+2.450 €</p>
+            </div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon stat-icon-expense">
+                <i class="bi bi-arrow-up-circle"></i>
+            </div>
+            <div>
+                <p class="stat-label">Ausgaben</p>
+                <p class="stat-value text-danger">-1.230 €</p>
+            </div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon stat-icon-savings">
+                <i class="bi bi-piggy-bank"></i>
+            </div>
+            <div>
+                <p class="stat-label">Ersparnisse</p>
+                <p class="stat-value text-info">{{ savings }} €</p>
+            </div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon stat-icon-activity">
+                <i class="bi bi-activity"></i>
+            </div>
+            <div>
+                <p class="stat-label">Letzte Aktivität</p>
+                <p class="stat-value">{{ last_activity }}</p>
+            </div>
+        </div>
+    </div>
 
-            {% if last_transaktionen and last_transaktionen|length > 0 %}
-            <div class="mt-6 txn-list">
-                {% for t in last_transaktionen %}
-                <div class="txn-item">
-                    <div class="txn-left">
-                        <div class="txn-date">{{ t.datetime }}</div>
-                        <div class="txn-desc">{{ t.desc }}</div>
-                    </div>
-                    <div class="txn-amt"><span class="{{ 'amt-positive' if t.amount >= 0 else 'amt-negative' }}">{{ '+' if t.amount >= 0 else '' }}{{ '%.2f'|format(t.amount) }}</span> €</div>
+    <!-- Chart Section -->
+    <div class="card-soft">
+        <div class="section-title">
+            <h2>Kontoverlauf</h2>
+            <p>Ihre Kontoentwicklung der letzten Tage im Überblick.</p>
+        </div>
+        <div class="chart-container">
+            <canvas id="miniChart" height="80"></canvas>
+        </div>
+    </div>
+
+    <!-- Recent Transactions -->
+    <div class="card-soft">
+        <div class="section-title">
+            <h2>Letzte Transaktionen</h2>
+            <p>Ihre 5 neuesten Buchungen und Überweisungen.</p>
+        </div>
+
+        {% if last_transaktionen and last_transaktionen|length > 0 %}
+        <div class="txn-list">
+            {% for t in last_transaktionen %}
+            <div class="txn-item">
+                <div class="txn-icon" style="background: linear-gradient(135deg, 
+                    {% if t.amount >= 0 %}#10b981, #059669{% else %}#ef4444, #dc2626{% endif %});">
+                    <i class="bi {% if t.amount >= 0 %}bi-arrow-down-left{% else %}bi-arrow-up-right{% endif %}"></i>
                 </div>
-                {% endfor %}
+                <div class="txn-left">
+                    <div class="txn-desc">{{ t.desc }}</div>
+                    <div class="txn-date">{{ t.datetime }}</div>
+                </div>
+                <div class="txn-amt">
+                    <span class="{{ 'amt-positive' if t.amount >= 0 else 'amt-negative' }}">
+                        {{ '+' if t.amount >= 0 else '' }}{{ '%.2f'|format(t.amount) }}
+                    </span>
+                    <span style="color: #64748b; font-size: 0.85rem; display: block;">€</span>
+                </div>
             </div>
-            {% else %}
-            <div class="mt-6 text-slate-500">Keine aktuellen Transaktionen.</div>
-            {% endif %}
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="empty-state">
+            <i class="bi bi-inbox"></i>
+            <p>Keine Transaktionen vorhanden</p>
+        </div>
+        {% endif %}
 
-            <div class="mt-4">
-                <canvas id="miniChart" height="220"></canvas>
-            </div>
+        <div class="mt-4">
+            <a href="{{ url_for('transaktionen') }}" class="btn btn-outline-secondary w-full">
+                <i class="bi bi-eye"></i>
+                <span>Alle Transaktionen ansehen</span>
+            </a>
         </div>
     </div>
 </div>
@@ -82,16 +144,14 @@ document.addEventListener('DOMContentLoaded', function() {
         const labels = chartData.labels;
         const balances = chartData.balances;
         
-        console.log('Labels:', labels);
-        console.log('Balances:', balances);
-        
         const miniChartElement = document.getElementById('miniChart');
-        if (!miniChartElement) {
-            console.error('Canvas element miniChart not found');
-            return;
-        }
+        if (!miniChartElement) return;
         
         const ctx = miniChartElement.getContext('2d');
+        const gradient = ctx.createLinearGradient(0, 0, 0, 400);
+        gradient.addColorStop(0, 'rgba(0, 102, 255, 0.3)');
+        gradient.addColorStop(1, 'rgba(0, 102, 255, 0.02)');
+        
         new Chart(ctx, {
             type: 'line',
             data: {
@@ -99,30 +159,33 @@ document.addEventListener('DOMContentLoaded', function() {
                 datasets: [{
                     label: 'Kontostand',
                     data: balances || [],
-                    borderColor: 'rgb(79, 70, 229)',
-                    backgroundColor: 'rgba(79, 70, 229, 0.1)',
-                    borderWidth: 2,
+                    borderColor: '#0066ff',
+                    backgroundColor: gradient,
+                    borderWidth: 3,
+                    fill: true,
                     tension: 0.4,
-                    fill: true
+                    pointBackgroundColor: '#0066ff',
+                    pointBorderColor: '#fff',
+                    pointBorderWidth: 2,
+                    pointRadius: 5,
+                    pointHoverRadius: 7
                 }]
             },
             options: {
                 responsive: true,
-                maintainAspectRatio: true,
+                maintainAspectRatio: false,
                 plugins: {
-                    legend: {
-                        display: true,
-                        position: 'top'
-                    }
+                    legend: { display: false }
                 },
                 scales: {
                     y: {
-                        beginAtZero: false,
-                        ticks: {
-                            callback: function(value) {
-                                return value.toLocaleString('de-DE') + ' €';
-                            }
-                        }
+                        beginAtZero: true,
+                        ticks: { color: '#64748b' },
+                        grid: { color: 'rgba(100, 116, 139, 0.1)' }
+                    },
+                    x: {
+                        ticks: { color: '#64748b' },
+                        grid: { color: 'rgba(100, 116, 139, 0.1)' }
                     }
                 }
             }

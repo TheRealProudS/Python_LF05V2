@@ -1,49 +1,69 @@
 ﻿{% extends "base.html" %}
 
-{% block title %}Kredite verwalten - Bankautomat{% endblock %}
+{% block title %}Admin-Panel - Kredite - BankPro{% endblock %}
 
 {% block content %}
 <div class="page-grid">
-    <div class="card-soft">
-        <div class="section-title">
-            <h2>Offene Kredit-Anträge</h2>
-            <p>Verwalte und entscheide über Kredit-Anträge.</p>
+    <div class="card-soft" style="border-radius: 16px;">
+        <div style="display: flex; align-items: center; gap: 1rem; margin-bottom: 1.5rem; padding-bottom: 1.5rem; border-bottom: 2px solid #e2e8f0;">
+            <div style="width: 50px; height: 50px; border-radius: 12px; background: linear-gradient(135deg, #ef4444, #dc2626); display: flex; align-items: center; justify-content: center; color: white; font-size: 1.5rem;">
+                <i class="bi bi-shield-lock"></i>
+            </div>
+            <div>
+                <h2 style="margin: 0; font-size: 1.5rem; color: #0f172a; font-weight: 700;">Admin-Panel</h2>
+                <p style="margin: 0.3rem 0 0; color: #64748b; font-size: 0.95rem;">Verwalten Sie offene Kredit-Anträge</p>
+            </div>
         </div>
 
         {% if kredite %}
-            <div class="overflow-x-auto">
-                <table class="table-alt">
-                    <thead>
-                        <tr>
-                            <th>Antragsteller</th>
-                            <th>Betrag</th>
-                            <th>Laufzeit</th>
-                            <th>Status</th>
-                            <th>Aktion</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for kredit in kredite %}
-                        <tr>
-                            <td>{{ kredit.user }}</td>
-                            <td>{{ '%.2f'|format(kredit.amount) }} €</td>
-                            <td>{{ kredit.months }} Monate</td>
-                            <td>{{ kredit.status }}</td>
-                            <td>
-                                {% if kredit.status == 'pending' %}
-                                    <a href="{{ url_for('approve_kredit', kredit_id=kredit.id) }}" class="btn btn-primary">Genehmigen</a>
-                                {% else %}
-                                    <span class="text-slate-500">Abgeschlossen</span>
-                                {% endif %}
-                            </td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
+            <div class="transactions-container">
+                <div class="overflow-x-auto">
+                    <table class="table-modern">
+                        <thead>
+                            <tr>
+                                <th>Antragsteller</th>
+                                <th>Betrag</th>
+                                <th>Laufzeit</th>
+                                <th style="width: 100px; text-align: center;">Status</th>
+                                <th style="width: 140px; text-align: center;">Aktion</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for kredit in kredite %}
+                            <tr class="txn-row">
+                                <td style="color: #0f172a; font-weight: 500;">{{ kredit.user }}</td>
+                                <td style="color: #0f172a; font-weight: 600; font-size: 1.05rem;">{{ '%.2f'|format(kredit.amount) }} €</td>
+                                <td style="color: #64748b;">{{ kredit.months }} Mo.</td>
+                                <td style="text-align: center;">
+                                    <span style="background: rgba(249, 115, 22, 0.1); color: #f97316; padding: 0.4rem 0.8rem; border-radius: 8px; font-size: 0.85rem; font-weight: 700;">
+                                        {% if kredit.status == 'pending' %}
+                                            ⚠️ Ausstehend
+                                        {% else %}
+                                            ✅ {{ kredit.status|capitalize }}
+                                        {% endif %}
+                                    </span>
+                                </td>
+                                <td style="text-align: center;">
+                                    {% if kredit.status == 'pending' %}
+                                        <a href="{{ url_for('approve_kredit', kredit_id=kredit.id) }}" class="btn btn-primary" style="padding: 0.5rem 1rem; font-size: 0.9rem;">
+                                            <i class="bi bi-check-lg" style="margin-right: 0.3rem;"></i>
+                                            Bestätigen
+                                        </a>
+                                    {% else %}
+                                        <span style="color: #64748b; font-size: 0.9rem; font-weight: 500;">Erledigt</span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
             </div>
         {% else %}
-            <div class="rounded-3xl bg-slate-50 p-8 text-center text-slate-500">
-                Es sind keine Kredit-Anträge vorhanden.
+            <div class="empty-state-large">
+                <i class="bi bi-inbox"></i>
+                <h3>Keine ausstehenden Kredit-Anträge</h3>
+                <p>Alle Anträge wurden bereits bearbeitet.</p>
             </div>
         {% endif %}
     </div>

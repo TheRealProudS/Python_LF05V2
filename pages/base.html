@@ -3,33 +3,76 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}Bankautomat{% endblock %}</title>
+    <title>{% block title %}BankPro - Modern Banking{% endblock %}</title>
     <link href="https://unpkg.com/tailwindcss@3.4.3/dist/tailwind.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
     <link rel="icon" href="{{ url_for('static', filename='logo.svg') }}" type="image/svg+xml">
+    <style>
+        /* Additional modern animations */
+        @keyframes slideInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        @keyframes float {
+            0%, 100% {
+                transform: translateY(0px);
+            }
+            50% {
+                transform: translateY(-8px);
+            }
+        }
+        
+        @keyframes glow {
+            0%, 100% {
+                box-shadow: 0 0 20px rgba(0, 102, 255, 0.3);
+            }
+            50% {
+                box-shadow: 0 0 32px rgba(0, 212, 255, 0.5);
+            }
+        }
+        
+        .animate-in {
+            animation: slideInDown 0.5s ease-out;
+        }
+        
+        .animate-float {
+            animation: float 3s ease-in-out infinite;
+        }
+        
+        .glow {
+            animation: glow 2s ease-in-out infinite;
+        }
+    </style>
 </head>
-<body class="bg-slate-100 text-slate-900">
+<body class="bg-gradient-to-br from-slate-950 via-blue-950 to-slate-900 text-slate-900">
     <div class="app-shell">
         {% if name %}
         <aside class="sidebar">
             <div class="sidebar-brand">
-                <img src="{{ url_for('static', filename='logo.svg') }}" alt="Logo" class="sidebar-logo">
+                <img src="{{ url_for('static', filename='logo.svg') }}" alt="Logo" class="sidebar-logo animate-float">
                 <div class="brand-text">
                     <p class="brand-label">BankPro</p>
-                    <p class="brand-note">Modernes Banking</p>
+                    <p class="brand-note">Premium Banking</p>
                 </div>
                 <button id="sidebarToggle" class="sidebar-toggle" aria-label="Seitenleiste ein-/ausklappen"><i class="bi bi-chevron-left"></i></button>
             </div>
 
             <nav class="sidebar-nav">
                 <a href="{{ url_for('dashboard') }}" class="sidebar-link {% if request.endpoint == 'dashboard' %}active{% endif %}">
-                    <i class="bi bi-grid-3x3-gap-fill sidebar-icon"></i>
+                    <i class="bi bi-speedometer2 sidebar-icon"></i>
                     <span class="sidebar-link-text">Dashboard</span>
                 </a>
                 <a href="{{ url_for('transaktionen') }}" class="sidebar-link {% if request.endpoint == 'transaktionen' %}active{% endif %}">
-                    <i class="bi bi-card-list sidebar-icon"></i>
+                    <i class="bi bi-receipt sidebar-icon"></i>
                     <span class="sidebar-link-text">Transaktionen</span>
                 </a>
                 <a href="{{ url_for('einzahlung') }}" class="sidebar-link {% if request.endpoint == 'einzahlung' %}active{% endif %}">
@@ -41,20 +84,21 @@
                     <span class="sidebar-link-text">Auszahlung</span>
                 </a>
                 <a href="{{ url_for('ueberweisung') }}" class="sidebar-link {% if request.endpoint == 'ueberweisung' %}active{% endif %}">
-                    <i class="bi bi-arrow-right-square sidebar-icon"></i>
+                    <i class="bi bi-arrow-left-right sidebar-icon"></i>
                     <span class="sidebar-link-text">Überweisung</span>
                 </a>
                 <a href="{{ url_for('kredit') }}" class="sidebar-link {% if request.endpoint == 'kredit' %}active{% endif %}">
-                    <i class="bi bi-piggy-bank sidebar-icon"></i>
+                    <i class="bi bi-graph-up sidebar-icon"></i>
                     <span class="sidebar-link-text">Kredit</span>
                 </a>
                 <a href="{{ url_for('sparplan') }}" class="sidebar-link {% if request.endpoint == 'sparplan' %}active{% endif %}">
-                    <i class="bi bi-wallet2 sidebar-icon"></i>
+                    <i class="bi bi-coin sidebar-icon"></i>
                     <span class="sidebar-link-text">Sparplan</span>
                 </a>
                 {% if session.get('kontonummer') == '9999' %}
+                <hr style="border-color: rgba(255,255,255,0.1); margin: 0.5rem 0;">
                 <a href="{{ url_for('admin_kredite') }}" class="sidebar-link {% if request.endpoint == 'admin_kredite' %}active{% endif %}">
-                    <i class="bi bi-person-badge sidebar-icon"></i>
+                    <i class="bi bi-shield-lock sidebar-icon"></i>
                     <span class="sidebar-link-text">Admin</span>
                 </a>
                 {% endif %}
@@ -65,7 +109,10 @@
                     <span class="sidebar-user-name">{{ name }}</span>
                     <span class="sidebar-user-hint">{{ masked_kontonummer or session.kontonummer }}</span>
                 </div>
-                <a href="{{ url_for('logout') }}" class="btn btn-ghost sidebar-logout">Abmelden</a>
+                <a href="{{ url_for('logout') }}" class="btn btn-ghost sidebar-logout">
+                    <i class="bi bi-box-arrow-right"></i>
+                    <span>Abmelden</span>
+                </a>
             </div>
         </aside>
         {% endif %}
@@ -74,16 +121,19 @@
             {% if name %}
             <header class="topbar">
                 <div>
-                    <p class="eyebrow">Schneller Zugriff</p>
-                    <h1 class="topbar-title">Willkommen zurück, {{ name }}.</h1>
+                    <p class="eyebrow">Dashboard</p>
+                    <h1 class="topbar-title text-white font-bold text-3xl">Willkommen zurück, {{ name }}.</h1>
                     <div class="chip-group">
                         <a href="{{ url_for('einzahlung') }}" class="chip"><i class="bi bi-arrow-down-circle"></i><span>Einzahlen</span></a>
                         <a href="{{ url_for('auszahlung') }}" class="chip"><i class="bi bi-arrow-up-circle"></i><span>Abheben</span></a>
-                        <a href="{{ url_for('ueberweisung') }}" class="chip"><i class="bi bi-arrow-right-square"></i><span>Überweisen</span></a>
+                        <a href="{{ url_for('ueberweisung') }}" class="chip"><i class="bi bi-arrow-left-right"></i><span>Überweisen</span></a>
                     </div>
                 </div>
                 <div class="topbar-actions">
-                    <a href="{{ url_for('kredit') }}" class="btn btn-primary">Kredit beantragen</a>
+                    <a href="{{ url_for('kredit') }}" class="btn btn-primary">
+                        <i class="bi bi-lightning-charge"></i>
+                        <span>Kredit beantragen</span>
+                    </a>
                 </div>
             </header>
             {% endif %}

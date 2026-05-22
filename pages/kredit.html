@@ -1,89 +1,123 @@
 ﻿{% extends "base.html" %}
 
-{% block title %}Kreditrechner - Bankautomat{% endblock %}
+{% block title %}Kredit - BankPro{% endblock %}
 
 {% block content %}
 <div class="page-grid">
-    <div class="form-card grid gap-6 lg:grid-cols-[1.4fr_1fr]">
-        <div>
-            <div class="section-title">
-                <h2>Kredit beantragen</h2>
-                <p>Erhalte eine schnelle Kalkulation und speichere deinen Antrag direkt im System.</p>
+    <div style="display: grid; gap: 2rem; grid-template-columns: 1fr;" class="lg:grid-cols-[1.4fr_1fr]">
+        <div class="form-card" style="border-radius: 16px;">
+            <div style="background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%); padding: 2rem; border-radius: 16px 16px 0 0; color: white; display: flex; gap: 1rem; align-items: center; margin: -1px -1px 0 -1px;">
+                <div style="font-size: 2.5rem;"><i class="bi bi-graph-up"></i></div>
+                <div>
+                    <h2 style="margin: 0; font-size: 1.5rem;">Kredit Beantragen</h2>
+                    <p style="margin: 0.3rem 0 0; opacity: 0.9;">Flexible Finanzierung</p>
+                </div>
             </div>
 
-            {% if error %}
-            <div class="alert alert-danger">{{ error }}</div>
-            {% endif %}
-            {% if result %}
-            <div class="alert alert-success">Ihr Kredit-Antrag wurde gespeichert.</div>
-            {% endif %}
+            <div style="padding: 2.5rem;">
+                {% if error %}
+                    <div class="alert alert-danger" style="background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%); color: #991b1b; border: 1px solid #fca5a5; border-radius: 12px; padding: 1rem; margin-bottom: 1.5rem;">
+                        <i class="bi bi-exclamation-circle" style="margin-right: 0.5rem;"></i>
+                        {{ error }}
+                    </div>
+                {% endif %}
+                {% if result %}
+                    <div class="alert alert-success" style="background: linear-gradient(135deg, #dcfce7 0%, #bbf7d0 100%); color: #166534; border: 1px solid #86efac; border-radius: 12px; padding: 1rem; margin-bottom: 1.5rem;">
+                        <i class="bi bi-check-circle-fill" style="margin-right: 0.5rem;"></i>
+                        Ihr Kredit-Antrag wurde gespeichert.
+                    </div>
+                {% endif %}
 
-            <form method="post" class="space-y-6">
-                <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
-                {{ form.hidden_tag() }}
+                <form method="post" class="space-y-6">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+                    {{ form.hidden_tag() }}
 
-                <div class="input-group">
-                    <label>Kreditbetrag (€)</label>
-                    {{ form.amount(class_='form-control') }}
-                    {% if form.amount.errors %}
-                        <p class="field-error">{{ form.amount.errors[0] }}</p>
-                    {% endif %}
-                </div>
-
-                <div class="grid gap-4 md:grid-cols-2">
                     <div class="input-group">
-                        <label>Laufzeit (Monate)</label>
-                        {{ form.months(class_='form-control') }}
-                        {% if form.months.errors %}
-                            <p class="field-error">{{ form.months.errors[0] }}</p>
+                        <label style="font-weight: 600; display: block; margin-bottom: 0.5rem;"><i class="bi bi-euro" style="margin-right: 0.5rem;"></i>Kreditbetrag</label>
+                        {{ form.amount(class_='form-control', placeholder='z.B. 5.000', style='border-radius: 12px; padding: 1rem; font-size: 1.1rem;') }}
+                        {% if form.amount.errors %}
+                            <p class="field-error">{{ form.amount.errors[0] }}</p>
                         {% endif %}
                     </div>
-                    <div class="input-group">
-                        <label>Eff. Jahreszins (%)</label>
-                        {{ form.rate(class_='form-control') }}
-                        {% if form.rate.errors %}
-                            <p class="field-error">{{ form.rate.errors[0] }}</p>
-                        {% endif %}
-                    </div>
-                </div>
 
-                <button class="btn btn-primary" type="submit">Berechnen & Antrag stellen</button>
-            </form>
+                    <div class="grid gap-4 md:grid-cols-2">
+                        <div class="input-group">
+                            <label style="font-weight: 600; display: block; margin-bottom: 0.5rem;"><i class="bi bi-calendar" style="margin-right: 0.5rem;"></i>Laufzeit</label>
+                            {{ form.months(class_='form-control', placeholder='z.B. 24', style='border-radius: 12px; padding: 1rem;') }}
+                            <p style="font-size: 0.85rem; color: #64748b; margin-top: 0.5rem;">Monate</p>
+                            {% if form.months.errors %}
+                                <p class="field-error">{{ form.months.errors[0] }}</p>
+                            {% endif %}
+                        </div>
+                        <div class="input-group">
+                            <label style="font-weight: 600; display: block; margin-bottom: 0.5rem;"><i class="bi bi-percent" style="margin-right: 0.5rem;"></i>Jahreszins</label>
+                            {{ form.rate(class_='form-control', placeholder='z.B. 4,5', style='border-radius: 12px; padding: 1rem;') }}
+                            <p style="font-size: 0.85rem; color: #64748b; margin-top: 0.5rem;">p.a. eff.</p>
+                            {% if form.rate.errors %}
+                                <p class="field-error">{{ form.rate.errors[0] }}</p>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <button class="btn btn-primary" type="submit" style="width: 100%; padding: 1rem; font-size: 1rem; border-radius: 12px;">
+                        <i class="bi bi-check-lg" style="margin-right: 0.5rem;"></i>
+                        Berechnen & Antrag stellen
+                    </button>
+                </form>
+            </div>
         </div>
 
-        <aside class="card-soft card-soft-alt">
-            <div class="section-title">
-                <h2>Ihr Konto</h2>
-                <p>Der Antrag wird direkt in Ihrem Konto gespeichert.</p>
-            </div>
-            <div class="mt-6 space-y-4 text-slate-700">
-                <div>
-                    <p class="text-sm text-slate-300">Name</p>
-                    <p class="mt-1 text-lg font-semibold">{{ name }}</p>
+        <!-- Result Panel -->
+        <div class="card-soft" style="border-radius: 16px; background: linear-gradient(135deg, rgba(139, 92, 246, 0.05) 0%, rgba(124, 58, 237, 0.05) 100%); border: 1px solid rgba(139, 92, 246, 0.2);">
+            <div style="display: flex; align-items: center; gap: 1rem; margin-bottom: 1.5rem;">
+                <div style="width: 50px; height: 50px; border-radius: 12px; background: linear-gradient(135deg, #8b5cf6, #7c3aed); display: flex; align-items: center; justify-content: center; color: white; font-size: 1.5rem;">
+                    <i class="bi bi-calculator"></i>
                 </div>
                 <div>
-                    <p class="text-sm text-slate-300">Aktueller Saldo</p>
-                    <p class="mt-1 text-lg font-semibold">{{ saldo }} €</p>
+                    <h3 style="margin: 0; font-size: 1.1rem; color: #0f172a; font-weight: 700;">Ihr Konto</h3>
+                    <p style="margin: 0.3rem 0 0; color: #64748b; font-size: 0.9rem;">Kontoinhaber</p>
                 </div>
             </div>
 
-            {% if result %}
-            <div class="mt-6 rounded-3xl bg-slate-900 p-5 text-slate-100">
-                <p class="text-sm uppercase tracking-[0.2em] text-slate-400">Berechnung</p>
-                <p class="mt-4 text-3xl font-semibold">{{ '%.2f'|format(result.monthly) }} €</p>
-                <div class="mt-4 space-y-2 text-sm">
-                    <div class="flex justify-between"><span>Betrag</span><span>{{ '%.2f'|format(result.amount) }} €</span></div>
-                    <div class="flex justify-between"><span>Laufzeit</span><span>{{ result.months }} Mo.</span></div>
-                    <div class="flex justify-between"><span>Zins</span><span>{{ '%.2f'|format(result.rate) }} %</span></div>
-                    <div class="flex justify-between pt-2 border-t border-slate-700"><span>Status</span><span>{{ result.status }}</span></div>
+            <div style="display: grid; gap: 1.5rem;">
+                <div style="padding: 1rem; background: white; border-radius: 12px; border: 1px solid rgba(139, 92, 246, 0.15);">
+                    <p style="margin: 0; color: #64748b; font-size: 0.9rem; font-weight: 500;">Name</p>
+                    <p style="margin: 0.5rem 0 0; font-size: 1.1rem; font-weight: 600; color: #0f172a;">{{ name }}</p>
                 </div>
+
+                <div style="padding: 1rem; background: white; border-radius: 12px; border: 1px solid rgba(139, 92, 246, 0.15);">
+                    <p style="margin: 0; color: #64748b; font-size: 0.9rem; font-weight: 500;">Aktueller Saldo</p>
+                    <p style="margin: 0.5rem 0 0; font-size: 1.8rem; font-weight: 700; color: #10b981;">{{ saldo }} €</p>
+                </div>
+
+                {% if result %}
+                <div style="padding: 1.5rem; background: linear-gradient(135deg, #f0f4ff 0%, #f5f1ff 100%); border-radius: 12px; border: 1px solid rgba(139, 92, 246, 0.2);">
+                    <p style="margin: 0; color: #64748b; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.05em; font-weight: 700;">Ihre Berechnung</p>
+                    <p style="margin: 1rem 0 0; font-size: 2rem; font-weight: 700; color: #8b5cf6;">{{ '%.2f'|format(result.monthly) }} €</p>
+                    <p style="margin: 0.5rem 0 0; color: #64748b; font-size: 0.85rem;">Monatliche Rate</p>
+
+                    <div style="margin-top: 1.5rem; padding-top: 1.5rem; border-top: 1px solid rgba(139, 92, 246, 0.2); display: grid; gap: 0.7rem;">
+                        <div style="display: flex; justify-content: space-between; font-size: 0.9rem;">
+                            <span style="color: #64748b;">Kreditbetrag</span>
+                            <strong style="color: #0f172a;">{{ '%.2f'|format(result.amount) }} €</strong>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; font-size: 0.9rem;">
+                            <span style="color: #64748b;">Laufzeit</span>
+                            <strong style="color: #0f172a;">{{ result.months }} Monate</strong>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; font-size: 0.9rem;">
+                            <span style="color: #64748b;">Zinssatz</span>
+                            <strong style="color: #0f172a;">{{ '%.2f'|format(result.rate) }} %</strong>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; font-size: 0.9rem; padding-top: 0.7rem; border-top: 1px solid rgba(139, 92, 246, 0.2);">
+                            <span style="color: #64748b; font-weight: 500;">Status</span>
+                            <strong style="color: #10b981; display: flex; align-items: center; gap: 0.3rem;"><i class="bi bi-check-circle-fill"></i>{{ result.status }}</strong>
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
             </div>
-            {% else %}
-            <div class="mt-6 rounded-3xl bg-slate-950 p-5 text-slate-100">
-                <p class="text-sm text-slate-400">Fülle das Formular aus und erhalte sofort eine Monatsrate.</p>
-            </div>
-            {% endif %}
-        </aside>
+        </div>
     </div>
 </div>
 {% endblock %}

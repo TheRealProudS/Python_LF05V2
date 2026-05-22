@@ -1,55 +1,92 @@
 ﻿{% extends "base.html" %}
 
-{% block title %}Überweisung - Bankautomat{% endblock %}
+{% block title %}Überweisung - BankPro{% endblock %}
 
 {% block content %}
 <div class="page-grid">
-    <div class="form-card grid gap-6 lg:grid-cols-[1.4fr_1fr]">
-        <div>
-            <div class="section-title">
-                <h2>Überweisung</h2>
-                <p>Sende Geld an ein anderes Konto – sicher und bequem.</p>
+    <div style="display: grid; gap: 2rem; grid-template-columns: 1fr;" class="lg:grid-cols-[1.4fr_1fr]">
+        <div class="form-card" style="border-radius: 16px;">
+            <div style="background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%); padding: 2rem; border-radius: 16px 16px 0 0; color: white; display: flex; gap: 1rem; align-items: center; margin: -1px -1px 0 -1px;">
+                <div style="font-size: 2.5rem;"><i class="bi bi-arrow-left-right"></i></div>
+                <div>
+                    <h2 style="margin: 0; font-size: 1.5rem;">Geld Überweisen</h2>
+                    <p style="margin: 0.3rem 0 0; opacity: 0.9;">An anderes Konto</p>
+                </div>
             </div>
 
-            {% if error %}
-                <div class="alert alert-danger">{{ error }}</div>
-            {% endif %}
-            {% if success %}
-                <div class="alert alert-success">{{ success }}</div>
-            {% endif %}
+            <div style="padding: 2.5rem;">
+                {% if error %}
+                    <div class="alert alert-danger" style="background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%); color: #991b1b; border: 1px solid #fca5a5; border-radius: 12px; padding: 1rem; margin-bottom: 1.5rem;">
+                        <i class="bi bi-exclamation-circle" style="margin-right: 0.5rem;"></i>
+                        {{ error }}
+                    </div>
+                {% endif %}
+                {% if success %}
+                    <div class="alert alert-success" style="background: linear-gradient(135deg, #dcfce7 0%, #bbf7d0 100%); color: #166534; border: 1px solid #86efac; border-radius: 12px; padding: 1rem; margin-bottom: 1.5rem;">
+                        <i class="bi bi-check-circle-fill" style="margin-right: 0.5rem;"></i>
+                        {{ success }}
+                    </div>
+                {% endif %}
 
-            <form method="post" class="space-y-6">
-                {{ form.hidden_tag() }}
-                <div class="input-group">
-                    <label>Empfänger-Kontonummer</label>
-                    {{ form.ziel_kontonummer(class_='form-control') }}
-                    {% if form.ziel_kontonummer.errors %}
-                        <p class="field-error">{{ form.ziel_kontonummer.errors[0] }}</p>
-                    {% endif %}
-                </div>
-                <div class="input-group">
-                    <label>Betrag (€)</label>
-                    {{ form.betrag(class_='form-control') }}
-                    {% if form.betrag.errors %}
-                        <p class="field-error">{{ form.betrag.errors[0] }}</p>
-                    {% endif %}
-                </div>
-                <button type="submit" class="btn btn-primary">Überweisen</button>
-            </form>
+                <form method="post" class="space-y-6">
+                    {{ form.hidden_tag() }}
+                    <div class="input-group">
+                        <label style="font-weight: 600; display: block; margin-bottom: 0.5rem;"><i class="bi bi-person-circle" style="margin-right: 0.5rem;"></i>Empfänger-Kontonummer</label>
+                        {{ form.ziel_kontonummer(class_='form-control', placeholder='z.B. 1234', style='border-radius: 12px; padding: 1rem;') }}
+                        {% if form.ziel_kontonummer.errors %}
+                            <p class="field-error">{{ form.ziel_kontonummer.errors[0] }}</p>
+                        {% endif %}
+                    </div>
+                    <div class="input-group">
+                        <label style="font-weight: 600; display: block; margin-bottom: 0.5rem;"><i class="bi bi-euro" style="margin-right: 0.5rem;"></i>Überweisungsbetrag</label>
+                        {{ form.betrag(class_='form-control', placeholder='z.B. 250,00', style='border-radius: 12px; padding: 1rem; font-size: 1.1rem;') }}
+                        {% if form.betrag.errors %}
+                            <p class="field-error">{{ form.betrag.errors[0] }}</p>
+                        {% endif %}
+                    </div>
+                    <button type="submit" class="btn btn-primary" style="width: 100%; padding: 1rem; font-size: 1rem; border-radius: 12px;">
+                        <i class="bi bi-send" style="margin-right: 0.5rem;"></i>
+                        Überweisung starten
+                    </button>
+                </form>
+            </div>
         </div>
 
-        <aside class="card-soft card-soft-alt">
-            <div class="section-title">
-                <h2>Überweisungsdetails</h2>
-                <p>Stellen Sie sicher, dass die Kontodaten korrekt sind.</p>
+        <!-- Info Panel -->
+        <div class="card-soft" style="border-radius: 16px; background: linear-gradient(135deg, rgba(0, 102, 255, 0.05) 0%, rgba(0, 212, 255, 0.05) 100%); border: 1px solid rgba(0, 102, 255, 0.2);">
+            <div style="display: flex; align-items: center; gap: 1rem; margin-bottom: 1.5rem;">
+                <div style="width: 50px; height: 50px; border-radius: 12px; background: linear-gradient(135deg, #0066ff, #00d4ff); display: flex; align-items: center; justify-content: center; color: white; font-size: 1.5rem;">
+                    <i class="bi bi-info-circle-fill"></i>
+                </div>
+                <div>
+                    <h3 style="margin: 0; font-size: 1.1rem; color: #0f172a; font-weight: 700;">Ihre Kontodaten</h3>
+                    <p style="margin: 0.3rem 0 0; color: #64748b; font-size: 0.9rem;">Verfügbare Mittel</p>
+                </div>
             </div>
-            <div class="mt-6 space-y-4 text-slate-700">
-                <p class="text-slate-300">Verfügbarer Saldo</p>
-                <p class="text-3xl font-semibold">{{ saldo }} €</p>
-                <p class="text-slate-300">Aktuelle Kontonummer</p>
-                <p class="text-lg font-medium">{{ masked_kontonummer or kontonummer }}</p>
+
+            <div style="display: grid; gap: 1.5rem;">
+                <div style="padding: 1rem; background: white; border-radius: 12px; border: 1px solid rgba(0, 102, 255, 0.15);">
+                    <p style="margin: 0; color: #64748b; font-size: 0.9rem; font-weight: 500;">Kontostand</p>
+                    <p style="margin: 0.5rem 0 0; font-size: 1.8rem; font-weight: 700; color: #0066ff;">{{ saldo }} €</p>
+                </div>
+
+                <div style="padding: 1rem; background: white; border-radius: 12px; border: 1px solid rgba(0, 102, 255, 0.15);">
+                    <p style="margin: 0; color: #64748b; font-size: 0.9rem; font-weight: 500;">Ihre Kontonummer</p>
+                    <p style="margin: 0.5rem 0 0; font-size: 1.1rem; font-weight: 600; color: #0f172a; font-family: 'Courier New', monospace;">{{ masked_kontonummer or kontonummer }}</p>
+                </div>
+
+                <div style="padding: 1rem; background: #f1f5f9; border-radius: 12px; border-left: 3px solid #10b981;">
+                    <p style="margin: 0; color: #0f172a; font-size: 0.85rem; font-weight: 500;"><i class="bi bi-shield-check" style="margin-right: 0.5rem; color: #10b981;"></i>Sichere Überweisung</p>
+                    <p style="margin: 0.5rem 0 0; color: #64748b; font-size: 0.85rem;">Alle Überweisungen sind durch Bank-Security geschützt.</p>
+                </div>
             </div>
-        </aside>
+        </div>
     </div>
 </div>
+
+<style>
+    @media (max-width: 1024px) {
+        .form-card { grid-column: 1 / -1; }
+    }
+</style>
 {% endblock %}
